@@ -1,4 +1,5 @@
 # Herd Ember
+[![Build Status](https://travis-ci.org/herdup/herd-ember.svg)](https://travis-ci.org/herdup/herd-ember)
 
 Herd Ember provides an Ember Data model & adapter infrastructure, to an Ember Application, for
 easy integration with the Herd Gem.
@@ -58,7 +59,7 @@ Herd Ember is easily customizable for a variety of use cases.
 ENV['herd'] = {
   host: null,
   namespace: null,
-  adapter: 'JSONAPIAdapter
+  adapter: 'JSONAPIAdapter'
 }
 ```
 
