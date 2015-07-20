@@ -1,5 +1,12 @@
 'use strict';
 
 module.exports = function(/* environment, appConfig */) {
-  return { };
+
+  return {
+    'herd': {
+      host: null,
+      namespace: null,
+      adapter: 'JSONAPIAdapter'
+    }
+  };
 };

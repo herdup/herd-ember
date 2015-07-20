@@ -28,6 +28,10 @@ module.exports = function(environment) {
   }
 
   if (environment === 'test') {
+    ENV['herd'] = {
+      host: 'http://localhost:3000',
+      namespace: 'api'
+    }
     // Testem prefers this...
     ENV.baseURL = '/';
     ENV.locationType = 'none';

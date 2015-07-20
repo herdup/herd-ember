@@ -1,0 +1,14 @@
+{{herd-file-field assetable=assetable}}
+
+<h3>Listing Assets:</h3>
+<ul>
+  {{#each assetable.assets as |asset|}}
+    <li> 
+      <img src={{asset.url}} />
+    </li>
+  {{else}}
+    <li>No assets are present for this object.</li>
+  {{/each}}
+</ul>
+
+{{yield}}
