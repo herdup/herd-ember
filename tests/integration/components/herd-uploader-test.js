@@ -10,9 +10,7 @@ test('it renders', function(assert) {
   assert.expect(1);
   
   this.render(hbs`
-    {{#herd-uploader}}
-      template block text
-    {{/herd-uploader}}
+    {{herd-uploader allowMultipleAssets=true}}
   `);
 
   assert.equal(this.$().find('li').text().trim(), 'No assets are present for this object.');

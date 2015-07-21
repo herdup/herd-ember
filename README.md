@@ -7,9 +7,7 @@ easy integration with the Herd Gem.
 It also provides an uploader component that can be used to post Assets to your Herd backend.
 
 TODO:
-- Support "Single Asset" Uploaders
 - Drag and drop rearranging for Asset Position (in Uploader)
-- Ensure the uploader template is overidable.
 
 ## Getting Started
 

@@ -17,7 +17,7 @@ export default DS[herdConfig.adapter].extend({
     let namespace = 'herd';
 
     if (config.namespace) {
-      namespace = [namespace, config.namespace].join('/');
+      namespace = [config.namespace, namespace].join('/');
     }
 
     if (!config.host) {
