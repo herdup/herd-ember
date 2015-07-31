@@ -1,0 +1,1 @@
+export { default } from 'herd-ember/components/herd-asset';
