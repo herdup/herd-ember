@@ -22,6 +22,7 @@ export default Model.extend({
   url: attr('string'),
   fileName:      attr('string'),
   transformName: attr('string'),
+  assetClass: attr('string'),
 
   absoluteUrl: computed('url', function() {
     let url = get(this, 'url');

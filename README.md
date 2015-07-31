@@ -28,11 +28,48 @@ export default DS.Model.extend(Assetable, {
 });
 ```
 
-Now, provided your server is setup to pass down assets as sideloaded data to your Post model,
+Now, provided your server is setup to pass down assets (and missing assets) as sideloaded data to your Post model,
 you'll be able to access the Herd assets like so:
 
 ```js
 post.get('assets');
+```
+
+## Displaying Herd Assets
+
+Currently, Herd Ember only supports Assets with `assetClass === 'image'`.  We plan to support more Asset Types soon!
+
+```
+{{post.name}}
+{{herd-asset assetable=post}}
+```
+
+### Asset Class `image`
+
+A big thankyou to [Bustle Labs](http://www.bustle.com/labs) for their excellent `ember-cli-image` library.  When they cut a release to NPM, we'll
+switch to using it directly.
+
+These class names will be updated throughout the lifecycle of the Image asset:
+
+- `herd-asset`
+- `image`
+- `loading`
+- `error`
+
+You can optionally pass the below options to the `herd-asset` component:
+
+- `alt:string`: Alt text for the Image
+- `width:integer`: A pixel width for the Image
+- `height:integer`: A pixel height for the Image
+- `backgroundImage:boolean`: When true, will render the image as a background image
+- `imageContainer:boolean`: When true, will render the image in a container
+
+**Note**: When using `backgroundImage` or `imageContainer`, you can also pass a block to the helper, like so:
+
+```
+{{#herd-asset assetable=post backgroundImage=true}}
+  <h1>{{post.name}}</h1>
+{{/herd-asset}}
 ```
 
 ## Using the Uploader
@@ -40,9 +77,7 @@ post.get('assets');
 You can place the uploader on a page like so:
 
 ```
-// Assuming your model has Assetable mixed in...
-
-{{herd-uploader assetable=model}}
+{{herd-uploader assetable=post}}
 ```
 
 ## Customization
