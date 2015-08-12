@@ -33,6 +33,15 @@ var ImgComponent = Ember.Component.extend( ImageLoaderMixin, {
   */
   _cancelLoadOnDestroy: Ember.on('willDestroyElement', function() {
     this.cancelImageLoad();
+  }),
+  
+  didLoadAction: 'didLoad',
+  becameErrorAction: 'becameError',
+  sendLoadAction: Ember.on('didLoad', function() {
+    this.sendAction('didLoadAction', arguments);
+  }),
+  sendErrorAction: Ember.on('becameError', function() {
+    this.sendAction('becameErrorAction', arguments);
   })
 });
 
