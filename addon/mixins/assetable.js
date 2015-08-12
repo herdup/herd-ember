@@ -17,6 +17,8 @@ const {
   @extends Ember.Mixin
 */
 export default Mixin.create({
+  assetableSlug: false,
+
   assets: hasMany('herd-asset', { async: false }),
   missingAssets: hasMany('herd-asset', { async: false }),
 

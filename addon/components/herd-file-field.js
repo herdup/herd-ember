@@ -35,10 +35,18 @@ export default FileField.extend({
       });
 
       if (!isEmpty(files)) {
-        let promise = uploader.upload(files[0], {
+        let data = {
           assetable_type: capitalize(assetable.get('constructor.modelName')),
-          assetable_id:   assetable.get('id')
-        });
+        };
+        
+        let assetableSlug = get(assetable, 'assetableSlug');
+        if (assetableSlug) {
+          data['assetable_slug'] = assetable.get(assetableSlug);
+        } else {
+          data['assetable_id'] = assetable.get('id');
+        }
+
+        let promise = uploader.upload(files[0], data);
 
         if (get(this, 'loadingAction')) {
           this.sendAction('loadingAction', files[0], promise);

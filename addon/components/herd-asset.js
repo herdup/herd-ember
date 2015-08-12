@@ -1,19 +1,26 @@
 import Ember from 'ember';
-import DS from 'ember-data';
 import layout from '../templates/components/herd-asset';
 import pixel from 'herd-ember/lib/pixel';
 
 const {
   get,
+  set,
   computed,
   Component
 } = Ember;
 
 export default Component.extend({
   classNames: ['herd-asset'],
-  classNameBindings: ['asset.assetClass', 'backgroundImage', 'imageContainer'],
+  classNameBindings: ['asset.assetClass', 'backgroundImage', 'imageContainer', 'lifecycle'],
   layout: layout,
+  lifecycle: 'loading',
 
+  attributeBindings: ['escapedStyle:style'],
+
+  escapedStyle: computed('style', function() {
+    return Ember.String.htmlSafe(get(this, 'style'));
+  }),
+  
   // Image Options
   backgroundImage: false,
   imageContainer: false,
@@ -35,23 +42,29 @@ export default Component.extend({
     }
   }),
 
-  asset: computed('assetable.currentState', function() {
+  actions: {
+    didLoad() {
+      set(this, 'lifecycle', 'loaded');
+    },
+    becomeError() {
+      set(this, 'lifecycle', 'errored');
+    }
+  },
+
+  asset: computed('assetable.assets.length', 'assetable.missingAssets.length', function() {
     let assetable = get(this, 'assetable');
     
     if (assetable) {
-      if (assetable instanceof DS.Model) {
-        if (assetable.get('isLoading')) {
-          return null; 
+      let thennable = typeof(assetable.then) === "function";
+
+      if (thennable) {
+        if (assetable.get('isFulfilled')) {
+          return assetable.get('content').assetForTransform();
         } else {
-          return assetable.assetForTransform() || pixel;
+          return null;
         }
       } else {
-        // Assume Promise Object
-        if (assetable.get('isPending')) {
-          return null; 
-        } else {
-          return assetable.get('content').assetForTransform() || pixel;
-        }
+        return assetable.assetForTransform();
       }
     } else {
       return null; 

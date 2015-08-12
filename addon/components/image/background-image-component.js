@@ -17,6 +17,17 @@ var BackgroundImageComponent = Ember.Component.extend( ImageLoaderMixin, {
       var backgroundImageStyle = 'background-image:url("' + url + '")';
       this.set('style', backgroundImageStyle.htmlSafe());
     }
+  }),
+  
+
+  // TODO: Make this a mixin
+  didLoadAction: 'didLoad',
+  becameErrorAction: 'becameError',
+  sendLoadAction: Ember.on('didLoad', function() {
+    this.sendAction('didLoadAction', arguments);
+  }),
+  sendErrorAction: Ember.on('becameError', function() {
+    this.sendAction('becameErrorAction', arguments);
   })
 });
 
