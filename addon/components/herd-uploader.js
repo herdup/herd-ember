@@ -1,10 +1,11 @@
 import Ember from 'ember';
 import layout from '../templates/components/herd-uploader';
+import HasAssetable from 'herd-ember/mixins/has-assetable';
+import pixel from 'herd-ember/lib/pixel';
 
 const {
   get,
   set,
-  run,
   computed,
   Component,
   RSVP
@@ -19,28 +20,27 @@ const {
   @module herd-ember/components/herd-uploader
   @extends Ember.Component
 */
-export default Component.extend({
+export default Component.extend(HasAssetable, {
   layout: layout,
   onSuccess: null,
   onError: null,
-
-  allowMultipleAssets: false,
+  pixel: pixel,
   classNames: ['herd-uploader'],
+  
   classNameBindings: ['isUploading', 'allowMultipleAssets'],
+  allowMultipleAssets: false,
   isUploading: false,
-  pixelData: new SafeString("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"),
   previewData: null,
 
   previewStyle: computed('previewData', 'assetable.assets.firstObject', function() {
     let previewData = get(this, 'previewData'),
-        pixelData = get(this, 'pixelData'),
         url;
    
     if (previewData) {
       url = previewData;
     } else {
       if (get(this, 'allowMultipleAssets') || !get(this, 'assetable.assets.length')) {
-        url = pixelData; 
+        url = pixel; 
       } else {
         url = get(this, 'assetable.assets.firstObject.absoluteUrl');
       }
@@ -49,75 +49,49 @@ export default Component.extend({
     return new SafeString(`background-image: url(${url})`);
   }),
 
-  // Lifecycle Hook
-  herdAssetDidUpload(data) {
-    let assetable = get(this, 'assetable');
-
-    if (get(this, 'allowMultipleAssets')) {
-      assetable.reload();
-    } else {
-      this._deleteOldAssetsFor(data).then(() => { assetable.reload(); });
-    }
-
-    if (get(this, 'onSuccess')) {
-      this.sendAction('onSuccess', data);
-    }
-  },
-
-  herdAssetUploadFailed(error) {
-    if (get(this, 'onError')) {
-      this.sendAction('onError', error);
-    }
-  },
-
   actions: {
     pickImage() {
       this.$().find('input')[0].click();
     },
+
     herdAssetDidStartUploading(file, promise) {
-      /* Show Spinner */
       set(this, 'isUploading', true);
+      this._readFileData(file);
       
-      /* Show Preview */
-      let reader = new FileReader();
-      reader.onload = e => {
-        set(this, 'previewData', e.target.result);
-      };
-      reader.readAsDataURL(file);
-
       promise.then(data => {
-        run.scheduleOnce('afterRender', this, 'herdAssetDidUpload', data);
-      });
-      
-      promise.catch(error => {
-        run.scheduleOnce('afterRender', this, 'herdAssetUploadFailed', error);
-      });
-
-      /* Handle Outcome */
-      promise.finally(() => {
+        this.resolveAssetableThen(assetable => { this._handleUploadData(assetable, data); });
+      })
+      .catch(error => {
+        if (get(this, 'onError')) { this.sendAction('onError', error); }
+      })
+      .finally(() => {
         set(this, 'isUploading', false);
         set(this, 'previewData', null);
       });
-    },
+    }
   },
 
-  _deleteOldAssetsFor(payload) {
-    // TODO - This assumes JSONAPI Format.
-    let id = payload.data.id;
+  _readFileData(file) {
+    let _this = this;
+    let reader = new FileReader();
+    reader.onload = e => {
+      set(_this, 'previewData', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  },
 
-    let oldAssets = get(this, 'assetable.assets').rejectBy('id', id);
-    let oldAssetPromises = [];
+  _handleUploadData(assetable, data) {
+    let newAsset = assetable.store.push(data);
+    get(assetable, 'assets').pushObject(newAsset);
     
-    for (let i = 0; i < oldAssets.length; i++) {
-      oldAssetPromises.push(oldAssets[i].destroyRecord());
+    if (!get(this, 'allowMultipleAssets')) {
+      let promises = [];
+      get(assetable, 'assets').without(newAsset).forEach(asset => { 
+        promises.push(asset.destroyRecord()); 
+      });
+      RSVP.all(promises);
     }
 
-    let promise = RSVP.all(oldAssetPromises);
-
-    promise.catch(() => {
-      throw new Error(`Herd Ember: Could not delete old assets after uploading Asset with id: ${id}`);
-    });
-
-    return promise;
+    if (get(this, 'onSuccess')) { this.sendAction('onSuccess', newAsset); }
   }
 });

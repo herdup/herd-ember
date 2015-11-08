@@ -14,12 +14,9 @@ export default Component.extend({
   classNameBindings: ['asset.assetClass', 'backgroundImage', 'imageContainer', 'lifecycle'],
   layout: layout,
   lifecycle: 'loading',
+  pixel: pixel,
 
-  attributeBindings: ['escapedStyle:style'],
-
-  escapedStyle: computed('style', function() {
-    return Ember.String.htmlSafe(get(this, 'style'));
-  }),
+  attributeBindings: ['style'],
   
   // Image Options
   backgroundImage: false,
@@ -55,9 +52,7 @@ export default Component.extend({
     let assetable = get(this, 'assetable');
     if (!assetable) { return null; }
 
-    let thennable = typeof(assetable.then) === "function";
-
-    if (thennable) {
+    if (typeof assetable.then === "function") {
       if (assetable.get('isFulfilled')) {
         return assetable.get('content').assetForTransform();
       } else {

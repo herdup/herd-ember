@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 const {
-  htmlSafe 
-} = Ember.String;
+  SafeString
+} = Ember.Handlebars;
 
-export default htmlSafe("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
+export default new SafeString("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
