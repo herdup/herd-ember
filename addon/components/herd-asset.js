@@ -46,7 +46,7 @@ export default Component.extend({
     didLoad() {
       set(this, 'lifecycle', 'loaded');
     },
-    becomeError() {
+    becameError() {
       set(this, 'lifecycle', 'errored');
     }
   },
