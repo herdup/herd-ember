@@ -51,28 +51,26 @@ export default Component.extend({
     }
   },
 
-  asset: computed('assetable.assets.length', 'assetable.missingAssets.length', function() {
+  asset: computed('assetable.isFulfilled', 'assetable.assets.length', 'assetable.missingAssets.length', function() {
     let assetable = get(this, 'assetable');
-    
-    if (assetable) {
-      let thennable = typeof(assetable.then) === "function";
+    if (!assetable) { return null; }
 
-      if (thennable) {
-        if (assetable.get('isFulfilled')) {
-          return assetable.get('content').assetForTransform();
-        } else {
-          return null;
-        }
+    let thennable = typeof(assetable.then) === "function";
+
+    if (thennable) {
+      if (assetable.get('isFulfilled')) {
+        return assetable.get('content').assetForTransform();
       } else {
-        return assetable.assetForTransform();
+        return null;
       }
     } else {
-      return null; 
+      return assetable.assetForTransform();
     }
   }),
 
-  assetUrl: computed('asset.id', function() {
+  assetUrl: computed('asset', function() {
     let asset = get(this, 'asset');
+
     if (asset) {
       return asset.get('absoluteUrl');
     } else {
