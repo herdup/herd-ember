@@ -35,7 +35,7 @@ export default Component.extend({
     let previewData = get(this, 'previewData'),
         pixelData = get(this, 'pixelData'),
         url;
-    
+   
     if (previewData) {
       url = previewData;
     } else {
@@ -51,8 +51,12 @@ export default Component.extend({
 
   // Lifecycle Hook
   herdAssetDidUpload(data) {
-    if (!get(this, 'allowMultipleAssets')) {
-      this._deleteOldAssetsFor(data);
+    let assetable = get(this, 'assetable');
+
+    if (get(this, 'allowMultipleAssets')) {
+      assetable.reload();
+    } else {
+      this._deleteOldAssetsFor(data).then(() => { assetable.reload(); });
     }
 
     if (get(this, 'onSuccess')) {
