@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import EmberUploader from 'ember-uploader';
 import HerdUploader from 'herd-ember/lib/herd-uploader';
+import HasAssetable from 'herd-ember/mixins/has-assetable';
 
 const {
   get,
@@ -20,45 +21,33 @@ const {
   @module herd-ember/components/herd-file-field
   @extends Ember.Component
 */
-export default FileField.extend({
+export default FileField.extend(HasAssetable, {
   assetable: null,
   loadingAction: 'herdAssetDidStartUploading',
 
   filesDidChange(files) {
-    let assetable = get(this, 'assetable');
+    if (isEmpty(files)) { return; }
+    this.resolveAssetableThen(assetable => { this._startUpload(assetable, files); });
+  },
 
-    if (assetable) {
-      let adapter = get(this, 'container').lookup('adapter:herd-asset');
-      
-      let uploader = HerdUploader.create({
-        url: adapter.buildURL('herd-asset')
-      });
+  _startUpload(assetable, files) {
+    let adapter = get(this, 'container').lookup('adapter:herd-asset');
+    
+    let uploader = HerdUploader.create({
+      url: adapter.buildURL('herd-asset')
+    });
 
-      if (!isEmpty(files)) {
-        let data = {
-          assetable_type: capitalize(assetable.get('constructor.modelName')),
-        };
-        
-        let assetableSlug = get(assetable, 'assetableSlug');
-        if (assetableSlug) {
-          data['assetable_slug'] = assetable.get(assetableSlug);
-        } else {
-          data['assetable_id'] = assetable.get('id');
-        }
-
-        let promise = uploader.upload(files[0], data);
-
-        if (get(this, 'loadingAction')) {
-          this.sendAction('loadingAction', files[0], promise);
-        }
-
-        promise.then(data => {
-          let newAsset = assetable.store.push(data);
-          get(assetable, 'assets').pushObject(newAsset);
-        });
-      }
+    let data = {
+      assetable_type: capitalize(assetable.get('constructor.modelName')),
+    };
+    
+    let assetableSlug = get(assetable, 'assetableSlug');
+    if (assetableSlug) {
+      data['assetable_slug'] = assetable.get(assetableSlug);
     } else {
-      throw new Error('Herd Ember: You can not upload a file unless assetable is defined');
+      data['assetable_id'] = assetable.get('id');
     }
+
+    this.sendAction('loadingAction', files[0], uploader.upload(files[0], data));
   }
 });
