@@ -89,9 +89,11 @@ export default Component.extend(HasAssetable, {
       get(assetable, 'assets').without(newAsset).forEach(asset => { 
         promises.push(asset.destroyRecord()); 
       });
-      RSVP.all(promises);
+      RSVP.all(promises).then(() => {
+        if (get(this, 'onSuccess')) { this.sendAction('onSuccess', newAsset); }
+      });
+    } else {
+      if (get(this, 'onSuccess')) { this.sendAction('onSuccess', newAsset); }
     }
-
-    if (get(this, 'onSuccess')) { this.sendAction('onSuccess', newAsset); }
   }
 });
