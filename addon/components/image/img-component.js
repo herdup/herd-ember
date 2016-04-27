@@ -1,5 +1,13 @@
 import Ember from 'ember';
 import ImageLoaderMixin from 'herd-ember/mixins/image/image-loader-mixin';
+import HasLoadActions from 'herd-ember/mixins/has-load-actions';
+
+
+const {
+  on,
+  computed,
+  Component
+} = Ember;
 
 /**
   `img-component` renders a stateful `<img>` element whose loading and
@@ -14,35 +22,7 @@ import ImageLoaderMixin from 'herd-ember/mixins/image/image-loader-mixin';
   @extends Ember.Component
   @uses ImageLoaderMixin
 **/
-var ImgComponent = Ember.Component.extend( ImageLoaderMixin, {
+export default Component.extend(ImageLoaderMixin, HasLoadActions, {
   tagName: 'img',
   attributeBindings: ['alt', 'width', 'height'],
-
-  /**
-    @property imageLoader
-    @type Object
-    @default the img element itself
-  */
-  imageLoader: Ember.computed.reads('element'),
-
-  /**
-    @private
-    @method _cancelLoadOnDestroy
-    Cancels slow loading images when destroying view.
-    Ember routing seems to hang otherwise.
-  */
-  _cancelLoadOnDestroy: Ember.on('willDestroyElement', function() {
-    this.cancelImageLoad();
-  }),
-  
-  didLoadAction: 'didLoad',
-  becameErrorAction: 'becameError',
-  sendLoadAction: Ember.on('didLoad', function() {
-    this.sendAction('didLoadAction', arguments);
-  }),
-  sendErrorAction: Ember.on('becameError', function() {
-    this.sendAction('becameErrorAction', arguments);
-  })
 });
-
-export default ImgComponent;
