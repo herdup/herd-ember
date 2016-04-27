@@ -4,8 +4,6 @@ import HasLoadActions from 'herd-ember/mixins/has-load-actions';
 
 
 const {
-  on,
-  computed,
   Component
 } = Ember;
 

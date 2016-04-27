@@ -4,7 +4,6 @@ import BindsStyle from 'herd-ember/mixins/binds-style';
 import HasLoadActions from 'herd-ember/mixins/has-load-actions';
 
 const {
-  get,
   set,
   on,
   Component
