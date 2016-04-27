@@ -110,11 +110,8 @@ var ImageLoaderMixin = Ember.Mixin.create( Ember.Evented, ImageStateMixin, {
     @method _teardownLoader
   */
   _teardownLoader: Ember.on('willDestroyElement', function() {
-    var img = this.get('imageLoader');
-    if(img) {
-      img = img.onload = img.onerror = null;
-      this.set('imageLoader', null);
-    }
+    this.set('imageLoader', null);
+    this.cancelImageLoad();
   })
 
 });

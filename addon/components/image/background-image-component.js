@@ -1,5 +1,13 @@
 import Ember from 'ember';
 import ImageLoaderMixin from 'herd-ember/mixins/image/image-loader-mixin';
+import BindsStyle from 'herd-ember/mixins/binds-style';
+import HasLoadActions from 'herd-ember/mixins/has-load-actions';
+
+const {
+  set,
+  on,
+  Component
+} = Ember;
 
 /**
   Loads a stateful image for its css background-image.
@@ -9,26 +17,10 @@ import ImageLoaderMixin from 'herd-ember/mixins/image/image-loader-mixin';
   @extends Ember.Component
   @uses ImageLoaderMixin
 **/
-var BackgroundImageComponent = Ember.Component.extend( ImageLoaderMixin, {
-  attributeBindings: ['style'],
+export default Component.extend(ImageLoaderMixin, BindsStyle, HasLoadActions, {
   classNames: ['background-image'],
-  applyStyle: Ember.on('willLoad', function(url) {
-    if(url) {
-      var backgroundImageStyle = 'background-image:url("' + url + '")';
-      this.set('style', backgroundImageStyle.htmlSafe());
-    }
-  }),
-  
 
-  // TODO: Make this a mixin
-  didLoadAction: 'didLoad',
-  becameErrorAction: 'becameError',
-  sendLoadAction: Ember.on('didLoad', function() {
-    this.sendAction('didLoadAction', arguments);
-  }),
-  sendErrorAction: Ember.on('becameError', function() {
-    this.sendAction('becameErrorAction', arguments);
+  applyStyle: on('willLoad', function(url) {
+    set(this, 'style', `background-image:url(${url})`);
   })
 });
-
-export default BackgroundImageComponent;
