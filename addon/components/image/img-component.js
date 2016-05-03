@@ -2,8 +2,9 @@ import Ember from 'ember';
 import ImageLoaderMixin from 'herd-ember/mixins/image/image-loader-mixin';
 import HasLoadActions from 'herd-ember/mixins/has-load-actions';
 
-
 const {
+  set,
+  on,
   Component
 } = Ember;
 
@@ -16,11 +17,15 @@ const {
   {{stateful-img src="img/image1.jpg" alt="Image" width=100 height=100}}
   ```
 
-  @class ImgComponent
-  @extends Ember.Component
-  @uses ImageLoaderMixin
+ @class ImgComponent
+ @extends Ember.Component
+ @uses ImageLoaderMixin
 **/
 export default Component.extend(ImageLoaderMixin, HasLoadActions, {
-  tagName: 'img',
-  attributeBindings: ['alt', 'width', 'height'],
+ tagName: 'img',
+ attributeBindings: ['alt', 'width', 'height', 'src'],
+
+ applySrc: on('willLoad', function(url) {
+   set(this, 'src', url);
+ })
 });
