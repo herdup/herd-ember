@@ -46,7 +46,10 @@ export default Component.extend(BindsStyle, {
     if (!assetable) { return null; }
 
     if (typeof assetable.then === "function") {
-      if (assetable.get('isFulfilled')) { return assetable.get('content').assetForTransform(); }
+      if (assetable.get('isFulfilled')) { 
+        let content = get(assetable, 'content');
+        if (content) { return content.assetForTransform(); }
+      }
       return null;
     }
 
