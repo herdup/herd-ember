@@ -72,10 +72,11 @@ export default Mixin.create(Evented, ImageStateMixin, {
     - Setting img src to null has unexpected results cross-browser.
    */
   clearImage: task(function * () {
-    let image = this.get('imageLoader');
+    let img = this.get('imageLoader');
     img.onload = img.onerror = null;
     img.src = blankImg;
     this.setProperties({ isLoading: false, isError: false });
+    yield Ember.RSVP.resolve();
   }).keepLatest(),
 
   /**
