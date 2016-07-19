@@ -1,12 +1,19 @@
 import Ember from 'ember';
 import ImageStateMixin from './image-state-mixin';
+import { task } from 'ember-concurrency';
+
+const {
+  run,
+  Mixin,
+  Evented
+} = Ember;
 
 /**
   @private
   Smallest possible image data uri. 1x1 px transparent gif.
   Used to cancel a image request in progress.
   */
-var blankImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const blankImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
 /**
   Mixin to load images and handle state changes from
@@ -16,7 +23,7 @@ var blankImg = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAA
   @uses Ember.Evented
   @uses ImageStateMixin
 **/
-var ImageLoaderMixin = Ember.Mixin.create( Ember.Evented, ImageStateMixin, {
+export default Mixin.create(Evented, ImageStateMixin, {
   /**
     JavaScript Image Object used to do the loading.
 
@@ -30,45 +37,32 @@ var ImageLoaderMixin = Ember.Mixin.create( Ember.Evented, ImageStateMixin, {
     Loads the image src using native javascript Image object
     @method loadImage
   */
-  loadImage: function() {
-    var url = this.get('url');
-    var component = this, img;
+  loadImage: task(function * () {
+    let url = this.get('url');
+    if (url) {
+      let img = this.get('imageLoader');
+      this.trigger('willLoad', url);
+      this.setProperties({ isLoading: true, isError: false });
 
-    if(url) {
-      img = this.get('imageLoader');
-      if (img) {
-        this.trigger('willLoad', url);
-        this.setProperties({ isLoading: true, isError: false });
-
-        img.onload = function(e) {
-          Ember.run(function() {
-            component.setProperties({ isLoading: false, isError: false });
-            component.trigger('didLoad', img, e);
-          });
-        };
-
-        img.onerror = function(e) {
-          Ember.run(function() {
-            component.setProperties({ isLoading: false, isError: true });
-            component.trigger('becameError', img, e);
-          });
-        };
-
+      try {
+        let promise = Ember.RSVP.Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
         img.src = url;
+        let e = yield promise;
+        run(() => {
+          this.setProperties({ isLoading: false, isError: false });
+          this.trigger('didLoad', img, e);
+        });
+      } catch(e) {
+        run(() => {
+          this.setProperties({ isLoading: false, isError: true });
+          this.trigger('becameError', img, e);
+        });
       }
     }
-  },
-
-  /**
-    Cancels a pending image request.
-    @method cancelImageLoad
-  */
-  cancelImageLoad: function() {
-    if(this.get('isLoading')) {
-      this.setProperties({ isLoading: false, isError: false });
-      this.clearImage();
-    }
-  },
+  }).drop(),
 
   /**
    * Clears an image to a blank state.
@@ -77,20 +71,22 @@ var ImageLoaderMixin = Ember.Mixin.create( Ember.Evented, ImageStateMixin, {
     - Removing img from the DOM does not cancel an img http request.
     - Setting img src to null has unexpected results cross-browser.
    */
-  clearImage: function() {
-    var img = this.get('imageLoader');
-    if(img) {
-      img.onload = img.onerror = null;
-      img.src = blankImg;
-    }
-  },
+  clearImage: task(function * () {
+    let img = this.get('imageLoader');
+    img.onload = img.onerror = null;
+    img.src = blankImg;
+    this.setProperties({ isLoading: false, isError: false });
+    yield Ember.RSVP.resolve();
+  }).keepLatest(),
 
   /**
     Loads the image when the view is initially inserted
     @method loadImageOnInsert
   */
   loadImageOnInsert: Ember.on('didInsertElement', function() {
-    Ember.run.scheduleOnce('afterRender', this, this.loadImage);
+    run.scheduleOnce('afterRender', this, () => {
+      this.get('loadImage').perform();
+    });
   }),
 
   /**
@@ -98,22 +94,10 @@ var ImageLoaderMixin = Ember.Mixin.create( Ember.Evented, ImageStateMixin, {
     @method loadImageOnUrlSet
   */
   loadImageOnUrlSet: Ember.observer('url', function() {
-    Ember.run.scheduleOnce('afterRender', this, function() {
-      this.clearImage();
-      this.loadImage();
+    Ember.run.scheduleOnce('afterRender', this, () => {
+      this.get('clearImage').perform();
+      this.get('loadImage').perform();
     });
-  }),
-
-  /**
-    @private
-    Remove image events when element is destroyed
-    @method _teardownLoader
-  */
-  _teardownLoader: Ember.on('willDestroyElement', function() {
-    this.set('imageLoader', null);
-    this.cancelImageLoad();
   })
-
 });
 
-export default ImageLoaderMixin;
