@@ -11,7 +11,10 @@ TODO:
 
 ## Getting Started
 
+You'll need Ember Concurrency first!
+
 ```
+ember install ember-concurrency
 ember install herd-ember
 ```
 
