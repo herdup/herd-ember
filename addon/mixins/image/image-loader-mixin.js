@@ -45,7 +45,7 @@ export default Mixin.create(Evented, ImageStateMixin, {
       this.setProperties({ isLoading: true, isError: false });
 
       try {
-        let promise = Ember.RSVP.Promise((resolve, reject) => {
+        let promise = new Ember.RSVP.Promise((resolve, reject) => {
           img.onload = resolve;
           img.onerror = reject;
         });
