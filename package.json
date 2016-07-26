@@ -1,6 +1,6 @@
 {
   "name": "herd-ember",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Infrastructure for using Ember with the Herd Rails Engine.",
   "directories": {
     "doc": "doc",
