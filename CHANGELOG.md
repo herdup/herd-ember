@@ -1,5 +1,19 @@
 # Change Log
 
+## [0.0.7](https://github.com/herdup/herd-ember/tree/0.0.7) (2016-10-17)
+[Full Changelog](https://github.com/herdup/herd-ember/compare/v0.0.6...0.0.7)
+
+**Merged pull requests:**
+
+- fixed assetable.get bug [\#15](https://github.com/herdup/herd-ember/pull/15) ([zbergson](https://github.com/zbergson))
+
+## [v0.0.6](https://github.com/herdup/herd-ember/tree/v0.0.6) (2016-07-26)
+[Full Changelog](https://github.com/herdup/herd-ember/compare/v0.0.5...v0.0.6)
+
+**Merged pull requests:**
+
+- Use New in Promise Constructor [\#14](https://github.com/herdup/herd-ember/pull/14) ([hhff](https://github.com/hhff))
+
 ## [v0.0.5](https://github.com/herdup/herd-ember/tree/v0.0.5) (2016-07-19)
 [Full Changelog](https://github.com/herdup/herd-ember/compare/v0.0.1-beta.7...v0.0.5)
 
